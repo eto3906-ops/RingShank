@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeweler's Precision Wire Length Calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#F3D079',
+                            500: '#D4AF37',
+                            600: '#AA820A',
+                            700: '#856404',
+                        },
+                        charcoal: {
+                            800: '#1E2026',
+                            900: '#141519',
+                            950: '#0B0C0E',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom scrollbar for dark bench aesthetic */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141519;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="bg-charcoal-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-gold-500 selection:text-charcoal-950">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-charcoal-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-gold-500/10 border border-gold-500/30 rounded-lg text-gold-500">
+                    <i data-lucide="gem" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-serif font-bold text-lg text-gold-400 tracking-wide">AUREUS LABS</h1>
+                    <p class="text-xs text-slate-400 font-medium">Precision Wire Length & Bench Calculator</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 text-xs">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 text-gold-400 border border-gold-500/20">
+                    <span class="w-2 h-2 rounded-full bg-gold-400 animate-pulse"></span>
+                    Mean Diameter Formula (ID + t)
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- LEFT COLUMN: Inputs & Controls (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+
+                <!-- Primary Form Card -->
+                <div class="bg-charcoal-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-gold-400 mb-5 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4"></i> Ring & Wire Specifications
+                    </h2>
+
+                    <!-- 1. US Ring Size Input -->
+                    <div class="mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="ring-size" class="text-xs font-semibold text-slate-300">US Ring Size</label>
+                            <span class="text-xs text-slate-400">Range: 1 - 16</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="relative flex-grow">
+                                <input type="number" id="ring-size" step="0.25" min="1" max="16" value="7.0"
+                                    class="w-full bg-charcoal-950 border border-slate-700 rounded-xl px-4 py-3 text-lg font-bold text-slate-100 focus:outline-none focus:border-gold-500 transition-colors">
+                            </div>
+                            <!-- Size Quick Increments -->
+                            <div class="flex bg-charcoal-950 border border-slate-700 rounded-xl p-1 gap-1">
+                                <button onclick="adjustSize(-0.25)" class="px-3 hover:bg-slate-800 rounded-lg text-slate-300 font-bold transition">-</button>
+                                <button onclick="adjustSize(0.25)" class="px-3 hover:bg-slate-800 rounded-lg text-slate-300 font-bold transition">+</button>
+                            </div>
+                        </div>
+                        <!-- Quick Size Presets Slider -->
+                        <div class="mt-3">
+                            <input type="range" id="ring-slider" min="1" max="15" step="0.25" value="7" 
+                                class="w-full accent-gold-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-1">
+                                <span>Sz 1</span>
+                                <span>Sz 4</span>
+                                <span>Sz 7</span>
+                                <span>Sz 10</span>
+                                <span>Sz 13</span>
+                                <span>Sz 15</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Wire Gauge / Thickness Input -->
+                    <div class="mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-semibold text-slate-300">Wire Thickness / Gauge</label>
+                            <div class="flex gap-1 text-[11px] bg-charcoal-950 p-1 rounded-lg border border-slate-800">
+                                <button id="unit-gauge" onclick="setThicknessUnit('gauge')" class="px-2 py-0.5 rounded bg-gold-500 text-charcoal-950 font-bold transition">AWG</button>
+                                <button id="unit-in" onclick="setThicknessUnit('in')" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition">Inch</button>
+                                <button id="unit-mm" onclick="setThicknessUnit('mm')" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition">mm</button>
+                            </div>
+                        </div>
+
+                        <!-- AWG Preset Dropdown Container -->
+                        <div id="gauge-select-container" class="mb-3">
+                            <select id="gauge-preset" onchange="onGaugeSelectChange()" class="w-full bg-charcoal-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-gold-500 transition-colors">
+                                <option value="0.0641">14 Gauge (0.0641" / 1.63mm) - Heavy Shank</option>
+                                <option value="0.0508">16 Gauge (0.0508" / 1.29mm) - Standard Shank</option>
+                                <option value="0.0403" selected>18 Gauge (0.0403" / 1.02mm) - Medium Band</option>
+                                <option value="0.0320">20 Gauge (0.0320" / 0.81mm) - Light Band</option>
+                                <option value="0.0253">22 Gauge (0.0253" / 0.64mm) - Thin Wire</option>
+                                <option value="custom">Custom Thickness...</option>
+                            </select>
+                        </div>
+
+                        <!-- Direct Numerical Input -->
+                        <div class="relative">
+                            <input type="number" id="wire-thickness" step="0.001" value="0.0403" 
+                                class="w-full bg-charcoal-950 border border-slate-700 rounded-xl px-4 py-3 text-lg font-bold text-slate-100 focus:outline-none focus:border-gold-500 transition-colors">
+                            <span id="thickness-unit-label" class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">inches</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Joint Allowance / Kerf Buffer -->
+                    <div class="mb-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="saw-kerf" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                                <i data-lucide="scissors" class="w-3.5 h-3.5 text-gold-400"></i> Saw Cut Allowance / Filing Buffer
+                            </label>
+                            <span id="kerf-val-display" class="text-xs text-gold-400 font-mono">+0.50 mm</span>
+                        </div>
+                        <input type="range" id="saw-kerf" min="0" max="2" step="0.1" value="0.5" 
+                            class="w-full accent-gold-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                            <span>0.0 mm (Exact)</span>
+                            <span>+0.5 mm (Standard)</span>
+                            <span>+1.0 mm</span>
+                            <span>+2.0 mm (Filing extra)</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bench Notes & Formula Card -->
+                <div class="bg-charcoal-900 border border-slate-800 rounded-2xl p-5 text-xs text-slate-400 space-y-2">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-gold-400"></i> Bench Master Formula
+                    </h3>
+                    <p class="leading-relaxed">
+                        Cutting flat or round wire to inside diameter alone results in a ring that is <strong class="text-slate-200">too small</strong> due to material stretching along the outer radius.
+                    </p>
+                    <div class="bg-charcoal-950 p-3 rounded-lg border border-slate-800/80 font-mono text-[11px] text-gold-400/90 space-y-1">
+                        <div>Inside Dia (ID) = (US Size × 0.032) + 0.466"</div>
+                        <div>Mean Dia (MD) = ID + Wire Thickness</div>
+                        <div>Cut Length = (MD × π) + Filing Buffer</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: Results, Visualization & Project List (7 cols) -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+
+                <!-- Target Cut Output Display -->
+                <div class="bg-gradient-to-br from-charcoal-900 via-charcoal-900 to-charcoal-800 border border-gold-500/30 rounded-2xl p-6 shadow-2xl relative">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-[11px] font-semibold text-gold-400 uppercase tracking-widest">Calculated Raw Cut Length</span>
+                            <h2 class="text-2xl font-serif font-bold text-slate-100">Exact Cut Length</h2>
+                        </div>
+                        <button onclick="saveCurrentToBatch()" class="px-3 py-2 bg-gold-500 hover:bg-gold-600 text-charcoal-950 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-gold-500/10">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add to Cut List
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Metric Output -->
+                        <div class="bg-charcoal-950/80 border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+                            <span class="text-xs text-slate-400 font-medium">Metric Length (Millimeters)</span>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span id="res-mm" class="text-4xl font-extrabold font-mono text-gold-400">0.00</span>
+                                <span class="text-lg font-bold text-slate-400">mm</span>
+                            </div>
+                            <span id="res-mm-raw" class="text-[10px] text-slate-500 mt-1 font-mono">Exact: 0.00 mm (without buffer)</span>
+                        </div>
+
+                        <!-- Imperial Output -->
+                        <div class="bg-charcoal-950/80 border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+                            <span class="text-xs text-slate-400 font-medium">Imperial Length (Inches)</span>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span id="res-in" class="text-4xl font-extrabold font-mono text-slate-100">0.000</span>
+                                <span class="text-lg font-bold text-slate-400">in</span>
+                            </div>
+                            <span id="res-in-raw" class="text-[10px] text-slate-500 mt-1 font-mono">Exact: 0.000" (without buffer)</span>
+                        </div>
+                    </div>
+
+                    <!-- Diameter Details Sub-bar -->
+                    <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-800 text-center text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">Inside Dia (ID)</span>
+                            <span id="res-id-mm" class="font-mono font-semibold text-slate-200">0.00 mm</span>
+                            <span id="res-id-in" class="text-[10px] text-slate-400 block font-mono">0.000"</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase text-gold-400">Mean Dia (MD)</span>
+                            <span id="res-md-mm" class="font-mono font-semibold text-gold-400">0.00 mm</span>
+                            <span id="res-md-in" class="text-[10px] text-gold-400/70 block font-mono">0.000"</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">Outside Dia (OD)</span>
+                            <span id="res-od-mm" class="font-mono font-semibold text-slate-200">0.00 mm</span>
+                            <span id="res-od-in" class="text-[10px] text-slate-400 block font-mono">0.000"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Ring Cross-Section Diagram -->
+                <div class="bg-charcoal-900 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="w-full md:w-1/2 flex justify-center">
+                        <svg id="ring-svg" viewBox="0 0 240 240" class="w-52 h-52 filter drop-shadow-lg">
+                            <!-- Background Circles rendered dynamically -->
+                            <circle cx="120" cy="120" r="95" fill="none" stroke="#1E2026" stroke-width="1" />
+                            
+                            <!-- Outer Diameter Circle -->
+                            <circle id="svg-od" cx="120" cy="120" r="80" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="4 4" />
+                            
+                            <!-- Mean Diameter Circle (Golden midline) -->
+                            <circle id="svg-md" cx="120" cy="120" r="70" fill="none" stroke="#D4AF37" stroke-width="2" />
+                            
+                            <!-- Inside Diameter Circle -->
+                            <circle id="svg-id" cx="120" cy="120" r="60" fill="none" stroke="#94A3B8" stroke-width="2" />
+
+                            <!-- Wire Thickness Visualization (Filled band) -->
+                            <circle id="svg-band" cx="120" cy="120" r="70" fill="none" stroke="#D4AF37" stroke-opacity="0.25" stroke-width="20" />
+
+                            <!-- Dimension Arrow Lines -->
+                            <line x1="40" y1="120" x2="200" y2="120" stroke="#334155" stroke-width="1" stroke-dasharray="2 2" />
+                            
+                            <!-- Center Point -->
+                            <circle cx="120" cy="120" r="3" fill="#D4AF37" />
+                        </svg>
+                    </div>
+
+                    <!-- Diagram Legend -->
+                    <div class="w-full md:w-1/2 text-xs space-y-3">
+                        <h4 class="font-bold text-slate-200 border-b border-slate-800 pb-2">Cross-Section Legend</h4>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2 text-slate-300">
+                                <span class="w-3 h-3 rounded-full border-2 border-slate-400"></span>
+                                Inside Diameter (ID)
+                            </span>
+                            <span id="legend-id" class="font-mono text-slate-400">0.00 mm</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2 text-gold-400 font-semibold">
+                                <span class="w-3 h-3 rounded-full border-2 border-gold-500 bg-gold-500/30"></span>
+                                Mean Diameter (MD)
+                            </span>
+                            <span id="legend-md" class="font-mono text-gold-400">0.00 mm</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2 text-slate-300">
+                                <span class="w-3 h-3 rounded-full border-2 border-dashed border-slate-500"></span>
+                                Outside Diameter (OD)
+                            </span>
+                            <span id="legend-od" class="font-mono text-slate-400">0.00 mm</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-lg bg-charcoal-950 border border-slate-800 text-[11px] text-slate-400">
+                            <strong>Note:</strong> Bending flat wire shifts neutral axis to the center line (Mean Diameter). Always measure cut length from the Mean Circumference.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Batch Cut List Table -->
+                <div class="bg-charcoal-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="list-ordered" class="w-4 h-4 text-gold-400"></i>
+                            <h3 class="font-semibold text-slate-200 text-sm">Batch Ring Cut List</h3>
+                            <span id="batch-count" class="bg-charcoal-950 border border-slate-800 px-2 py-0.5 rounded-full text-[10px] font-mono text-gold-400">0 items</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <button onclick="exportBatchCSV()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition flex items-center gap-1">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
+                            </button>
+                            <button onclick="clearBatch()" class="px-2 py-1.5 hover:bg-red-500/10 hover:text-red-400 text-slate-500 rounded-lg text-xs transition">
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cut List Table -->
+                    <div class="overflow-x-auto max-h-56 overflow-y-auto border border-slate-800 rounded-xl bg-charcoal-950">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-charcoal-900 text-slate-400 font-semibold sticky top-0 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">US Size</th>
+                                    <th class="p-3">Wire Spec</th>
+                                    <th class="p-3">Buffer</th>
+                                    <th class="p-3">Cut Length (mm)</th>
+                                    <th class="p-3">Cut Length (in)</th>
+                                    <th class="p-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table-body" class="divide-y divide-slate-800 font-mono text-[11px]">
+                                <tr id="empty-batch-row">
+                                    <td colspan="6" class="p-6 text-center text-slate-500 font-sans">
+                                        No items saved to batch list yet. Click "Add to Cut List" above to queue ring cuts.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-charcoal-900/50 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>Jeweler's Bench Companion &bull; Standard Formula ID = (Size × 0.032) + 0.466"</div>
+            <div>Crafted for Goldsmiths, Silversmiths & Metalsmiths</div>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // State Management
+        let currentUnit = 'gauge'; // 'gauge', 'in', 'mm'
+        let batchItems = [];
+
+        // Gauge Reference Table (AWG to Inches)
+        const gaugeTable = {
+            "14": 0.0641,
+            "16": 0.0508,
+            "18": 0.0403,
+            "20": 0.0320,
+            "22": 0.0253
+        };
+
+        // DOM Elements
+        const ringSizeInput = document.getElementById('ring-size');
+        const ringSlider = document.getElementById('ring-slider');
+        const wireThicknessInput = document.getElementById('wire-thickness');
+        const gaugePresetSelect = document.getElementById('gauge-preset');
+        const sawKerfInput = document.getElementById('saw-kerf');
+        const kerfValDisplay = document.getElementById('kerf-val-display');
+
+        // Initializer
+        window.onload = function() {
+            lucide.createIcons();
+            attachEventListeners();
+            calculateWireLength();
+        };
+
+        function attachEventListeners() {
+            ringSizeInput.addEventListener('input', (e) => {
+                ringSlider.value = e.target.value;
+                calculateWireLength();
+            });
+
+            ringSlider.addEventListener('input', (e) => {
+                ringSizeInput.value = parseFloat(e.target.value).toFixed(2);
+                calculateWireLength();
+            });
+
+            wireThicknessInput.addEventListener('input', () => {
+                gaugePresetSelect.value = "custom";
+                calculateWireLength();
+            });
+
+            sawKerfInput.addEventListener('input', (e) => {
+                kerfValDisplay.textContent = `+${parseFloat(e.target.value).toFixed(2)} mm`;
+                calculateWireLength();
+            });
+        }
+
+        // Adjust Ring Size with +/- Buttons
+        function adjustSize(delta) {
+            let val = parseFloat(ringSizeInput.value) || 0;
+            val = Math.min(Math.max(val + delta, 1), 16);
+            ringSizeInput.value = val.toFixed(2);
+            ringSlider.value = val;
+            calculateWireLength();
+        }
+
+        // Unit Switcher
+        function setThicknessUnit(unit) {
+            currentUnit = unit;
+            
+            // Toggle Button Styles
+            ['gauge', 'in', 'mm'].forEach(u => {
+                const btn = document.getElementById(`unit-${u}`);
+                if (u === unit) {
+                    btn.className = "px-2 py-0.5 rounded bg-gold-500 text-charcoal-950 font-bold transition";
+                } else {
+                    btn.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition";
+                }
+            });
+
+            const label = document.getElementById('thickness-unit-label');
+            const presetContainer = document.getElementById('gauge-select-container');
+
+            if (unit === 'gauge') {
+                presetContainer.style.display = "block";
+                label.textContent = "inches";
+                onGaugeSelectChange();
+            } else if (unit === 'in') {
+                presetContainer.style.display = "none";
+                label.textContent = "inches";
+            } else if (unit === 'mm') {
+                presetContainer.style.display = "none";
+                label.textContent = "mm";
+            }
+
+            calculateWireLength();
+        }
+
+        function onGaugeSelectChange() {
+            const val = gaugePresetSelect.value;
+            if (val !== "custom") {
+                wireThicknessInput.value = parseFloat(val).toFixed(4);
+                calculateWireLength();
+            }
+        }
+
+        // Main Calculation Engine
+        function calculateWireLength() {
+            const size = parseFloat(ringSizeInput.value) || 0;
+            let rawThickness = parseFloat(wireThicknessInput.value) || 0;
+            const kerfBufferMM = parseFloat(sawKerfInput.value) || 0;
+
+            // Normalize thickness to Inches for standardized formula
+            let thicknessInches = rawThickness;
+            if (currentUnit === 'mm') {
+                thicknessInches = rawThickness / 25.4;
+            }
+
+            // 1. Inside Diameter (ID) in inches: (Size * 0.032) + 0.466
+            const insideDiameterInches = (size * 0.032) + 0.466;
+            const insideDiameterMM = insideDiameterInches * 25.4;
+
+            // 2. Mean Diameter (MD) = ID + Thickness
+            const meanDiameterInches = insideDiameterInches + thicknessInches;
+            const meanDiameterMM = meanDiameterInches * 25.4;
+
+            // 3. Outside Diameter (OD)
+            const outsideDiameterInches = insideDiameterInches + (2 * thicknessInches);
+            const outsideDiameterMM = outsideDiameterInches * 25.4;
+
+            // 4. Cut Length (Exact Circumference of Mean Diameter)
+            const exactLengthInches = Math.PI * meanDiameterInches;
+            const exactLengthMM = exactLengthInches * 25.4;
+
+            // Buffer converted to inches
+            const kerfBufferInches = kerfBufferMM / 25.4;
+
+            // Final Cut Lengths with Buffer
+            const finalLengthMM = exactLengthMM + kerfBufferMM;
+            const finalLengthInches = exactLengthInches + kerfBufferInches;
+
+            // Update UI Displays
+            document.getElementById('res-mm').textContent = finalLengthMM.toFixed(2);
+            document.getElementById('res-in').textContent = finalLengthInches.toFixed(3);
+
+            document.getElementById('res-mm-raw').textContent = `Exact: ${exactLengthMM.toFixed(2)} mm (without buffer)`;
+            document.getElementById('res-in-raw').textContent = `Exact: ${exactLengthInches.toFixed(3)}" (without buffer)`;
+
+            // Diameter Sub-bar
+            document.getElementById('res-id-mm').textContent = `${insideDiameterMM.toFixed(2)} mm`;
+            document.getElementById('res-id-in').textContent = `${insideDiameterInches.toFixed(3)}"`;
+
+            document.getElementById('res-md-mm').textContent = `${meanDiameterMM.toFixed(2)} mm`;
+            document.getElementById('res-md-in').textContent = `${meanDiameterInches.toFixed(3)}"`;
+
+            document.getElementById('res-od-mm').textContent = `${outsideDiameterMM.toFixed(2)} mm`;
+            document.getElementById('res-od-in').textContent = `${outsideDiameterInches.toFixed(3)}"`;
+
+            // SVG Legend
+            document.getElementById('legend-id').textContent = `${insideDiameterMM.toFixed(2)} mm`;
+            document.getElementById('legend-md').textContent = `${meanDiameterMM.toFixed(2)} mm`;
+            document.getElementById('legend-od').textContent = `${outsideDiameterMM.toFixed(2)} mm`;
+
+            // Update Diagram SVG Radii dynamically (scaled visually)
+            updateDiagram(insideDiameterMM, meanDiameterMM, outsideDiameterMM, (thicknessInches * 25.4));
+        }
+
+        // SVG Interactive Diagram Scaler
+        function updateDiagram(idMM, mdMM, odMM, thicknessMM) {
+            // Visual scale factor to map mm to SVG viewbox units
+            const baseScale = 3.5;
+            const center = 120;
+
+            const rID = Math.max(30, Math.min(85, idMM * baseScale / 2));
+            const rMD = Math.max(35, Math.min(92, mdMM * baseScale / 2));
+            const rOD = Math.max(40, Math.min(98, odMM * baseScale / 2));
+            const bandStrokeWidth = Math.max(3, (rOD - rID));
+
+            document.getElementById('svg-id').setAttribute('r', rID);
+            document.getElementById('svg-md').setAttribute('r', rMD);
+            document.getElementById('svg-od').setAttribute('r', rOD);
+            
+            const band = document.getElementById('svg-band');
+            band.setAttribute('r', (rID + rOD) / 2);
+            band.setAttribute('stroke-width', bandStrokeWidth);
+        }
+
+        // Batch Cut List Functionality
+        function saveCurrentToBatch() {
+            const size = parseFloat(ringSizeInput.value).toFixed(2);
+            const thickness = parseFloat(wireThicknessInput.value);
+            const unitLabel = currentUnit === 'gauge' ? `18ga (${thickness}")` : `${thickness} ${currentUnit}`;
+            const buffer = parseFloat(sawKerfInput.value).toFixed(1);
+            const cutMM = document.getElementById('res-mm').textContent;
+            const cutIN = document.getElementById('res-in').textContent;
+
+            const item = {
+                id: Date.now(),
+                size: size,
+                thickness: unitLabel,
+                buffer: `+${buffer} mm`,
+                cutMM: cutMM,
+                cutIN: cutIN
+            };
+
+            batchItems.push(item);
+            renderBatchTable();
+        }
+
+        function removeBatchItem(id) {
+            batchItems = batchItems.filter(item => item.id !== id);
+            renderBatchTable();
+        }
+
+        function clearBatch() {
+            batchItems = [];
+            renderBatchTable();
+        }
+
+        function renderBatchTable() {
+            const tbody = document.getElementById('batch-table-body');
+            const countLabel = document.getElementById('batch-count');
+            countLabel.textContent = `${batchItems.length} items`;
+
+            if (batchItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="empty-batch-row">
+                        <td colspan="6" class="p-6 text-center text-slate-500 font-sans">
+                            No items saved to batch list yet. Click "Add to Cut List" above to queue ring cuts.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = batchItems.map(item => `
+                <tr class="hover:bg-charcoal-900 transition-colors">
+                    <td class="p-3 font-semibold text-slate-200">US ${item.size}</td>
+                    <td class="p-3 text-slate-400">${item.thickness}</td>
+                    <td class="p-3 text-gold-400/80">${item.buffer}</td>
+                    <td class="p-3 text-gold-400 font-bold">${item.cutMM} mm</td>
+                    <td class="p-3 text-slate-300">${item.cutIN}"</td>
+                    <td class="p-3 text-right">
+                        <button onclick="removeBatchItem(${item.id})" class="text-slate-500 hover:text-red-400 transition p-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // CSV Export Tool
+        function exportBatchCSV() {
+            if (batchItems.length === 0) {
+                alert("Batch list is empty. Add cuts to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,US Ring Size,Wire Spec,Saw Buffer,Cut Length (mm),Cut Length (in)\n";
+            batchItems.forEach(item => {
+                csvContent += `${item.size},"${item.thickness}",${item.buffer},${item.cutMM},${item.cutIN}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `jeweler_ring_cut_list_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
